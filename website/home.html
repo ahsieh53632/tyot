@@ -1,0 +1,62 @@
+<html>
+<head>
+<script src="https://sdk.amazonaws.com/js/aws-sdk-2.7.16.min.js"></script>
+
+
+<h1>還敢亂丟垃圾!! 抓!</h1>
+<script>
+AWS.config.update({
+    region: "ap-northeast-2",
+    endpoint: 'https://dynamodb.ap-northeast-2.amazonaws.com',
+    accessKeyId: 'AKIAQHPIVI32R7IOD2FZ',
+    secretAccessKey: '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'
+});
+
+var docClient = new AWS.DynamoDB.DocumentClient();
+var bucket = "https://tyotimg1.s3.ap-northeast-2.amazonaws.com/"
+
+function query() {
+    console.log('start_query')
+    document.getElementById('table').innerHTML = ""
+    var params = {
+        TableName : "violation",
+        ProjectionExpression: "img_name",
+        FilterExpression: "#st = :stName",
+        ExpressionAttributeNames:{
+            "#st": "Street"
+        },
+        ExpressionAttributeValues: {
+            ":stName": document.getElementById('text1').value
+        }
+    };
+
+    docClient.scan(params, onScan);
+    
+    function onScan(err, data) {
+        if (err) {
+            console.log(err)
+        } else {
+            console.log('succeed')
+            console.log(data)
+            data.Items.forEach(e => {
+                console.log('accesing' + e.img_name)
+                link = bucket + e.img_name
+                document.getElementById('table').innerHTML += "<tr><img src=" + "\"" + link + "\"" + "width=\"500\" height=\"400\" /></tr>"
+            });
+        }
+    }
+
+}
+
+</script>
+
+</script>
+</head>
+<body>
+    <label>Enter Street Name:</label> <input id="text1" type="text" name="streetname" value="">
+    <button onclick="query()">Search</button>
+    <br />
+    <table style="border:2px solid black; padding: 10px; border-collapse: collapse" id='table'>
+    </table>
+</body>
+</html>
