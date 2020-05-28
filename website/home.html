@@ -41,7 +41,8 @@ function query() {
             data.Items.forEach(e => {
                 console.log('accesing' + e.img_name)
                 link = bucket + e.img_name
-                document.getElementById('table').innerHTML += "<tr><img src=" + "\"" + link + "\"" + "width=\"500\" height=\"400\" /></tr>"
+                document.getElementById('table').innerHTML += 
+                "<tr><td style=\"border:2px solid black\"><img src=" + "\"" + link + "\"" + "width=\"500\" height=\"400\" /></tr>"
             });
         }
     }
