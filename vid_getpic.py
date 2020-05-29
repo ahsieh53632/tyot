@@ -53,4 +53,5 @@ def upload2S3(access_key, secret_password, bucket_name, cur_file_path, file_name
 
     s3.Object(bucket_name, file_name).put(Body = file)
 
+def upload2DB()
 splitFrames_mp4('test1')
