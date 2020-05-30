@@ -89,6 +89,6 @@ def main():
     camera.release()
 
 #main()
-curr = './test_footage/test_frames/360.jpg'
-last = './test_footage/test_frames/340.jpg'
+curr = './test_footage/test_frames/680.jpg'
+last = './test_footage/test_frames/660.jpg'
 detect_dump(curr, last)
