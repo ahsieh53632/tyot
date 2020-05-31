@@ -29,7 +29,7 @@ you can see the output of our test videos with our front end: https://ahsieh5363
 our test-video link: https://drive.google.com/file/d/1zbplH_ehZaSC7dV1mxNm-LseNiswpQNK/view?usp=sharing
 ```
 Type 中央路 for the street name
-Currently we only have data for the dates 20200532 and 20200530 
+Currently we only have data for the dates 20200532 
 ``` 
 then, click submit and you should get images of individuals who dumped household garbage, and the objects that they threw 
 
