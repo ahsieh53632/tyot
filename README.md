@@ -2,8 +2,7 @@
 throw your own trash
 
 # Description
-A project designed to prevent Taipei citizens from throwing household garbage into public trash cans using Amazon Rekognitnion.
-
+A project designed to prevent Taipei citizens from throwing household garbage into public trash cans
 # How it's built
 Sicne we can not find avaliavle live stream cams  for our purpose, we use a S3 bucket and a trigger to simulate the process of a live stream.
 We realized that Amazon rekognition cannot detect plastic bags well, and it's incapable of detecting "dump" actions. Therefore, we implemented foreground detection with opencv in this project. An object is considered household garbage if its size reaches a threshold.
