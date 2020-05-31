@@ -3,6 +3,9 @@
 ## Description
 A project designed to prevent Taipei citizens from throwing household garbage into public trash cans
 
+## Built With
+Aws api gateway, Aws lambda, Aws DynamoDB, opencv, Aws S3 Bucket
+
 ## Design
 Sicne we can not find avaliavle live stream cams  for our purpose, we use a S3 bucket and a trigger to simulate the process of a live stream.
 We realized that Amazon rekognition cannot detect plastic bags well, and it's incapable of detecting "dump" actions. 
