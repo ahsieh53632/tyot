@@ -31,6 +31,6 @@ our test-video link: https://drive.google.com/file/d/1zbplH_ehZaSC7dV1mxNm-LseNi
 Type 中央路 for the street name
 Currently we only have data for the dates 20200532 and 20200530 
 ``` 
-then, click submit and you should get the image of the person, and the image of the garbage that was dumped 
+then, click submit and you should get images of people who dumped household garbage, and the objects that they threw 
 
 you can also test it with your own video files using run_locally.py
