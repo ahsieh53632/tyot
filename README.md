@@ -31,5 +31,5 @@ you can see the output of our test videos with our front end:
 Type 中央路 for the street name
 Currently we only have data for the dates 20200532 and 20200530 
 ``` 
-then, click submit and you should get the image of the person, and what he/she threw, in a table format 
+then, click submit and you should get the image of the person, and the image of the garbage that was dumped 
 https://ahsieh53632.github.io/tyotsite/
