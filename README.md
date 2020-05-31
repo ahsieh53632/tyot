@@ -22,7 +22,7 @@ If you want to run this project locally, make sure you have opencv-python instal
 ## How to use
 All you need to do is upload your test video to the "tyotinput" bucket and our lambda function will handle the rest <br />
 Then you can fetch images from DynamoDB using our front end
-### Note: tyotinput bucket is not public at this moment
+##### Note: tyotinput bucket is not public at this moment
 
 ## Test it your self
 you can see the output of our test videos with our front end: https://ahsieh53632.github.io/tyotsite/
