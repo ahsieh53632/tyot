@@ -7,19 +7,8 @@ import os
 from urllib.parse import unquote_plus
 import uuid
 
-with open('C:/Users/alex5/Desktop/credentials.csv', 'r') as c:
-    next(c)
-    r = csv.reader(c)
-    for l in r:
-        kid = l[2]
-        s_kid = l[3]
-
-
-
 def detect_dump(curr, last):
     sub = cv.createBackgroundSubtractorMOG2()
-    width = len(curr[0])
-    height = len(curr)
     fgMask = sub.apply(last)
     fgMask = sub.apply(curr, learningRate=0)
     kernel = np.ones((8,8), np.uint8)
@@ -27,23 +16,36 @@ def detect_dump(curr, last):
     thresh, bnw = cv.threshold(fgMask, 127, 255, cv.THRESH_BINARY)
     opening = cv.morphologyEx(bnw, cv.MORPH_OPEN, kernel)
     #closing = cv.morphologyEx(opening, cv.MORPH_CLOSE, np.ones((10,10), np.uint8))
+
     cnts = cv.findContours(opening, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE)[-2]
-    
     max_area = 0
     sorted_cnts = sorted(cnts, key=cv.contourArea, reverse=True)
+    cv.drawContours(curr, sorted_cnts, 0, (0, 0, 255), 3)
+    # find area in dump area
+    if (len(sorted_cnts) > 0):
+        mask = np.zeros(opening.shape, np.uint8)
+        cv.drawContours(mask, [sorted_cnts[0]], 0, 255, -1) 
+        crop_x_start = 500
+        crop_x_end = 580
+        crop_y_start = 800
+        crop_y_end = 1380
+        crop_size = (crop_y_end - crop_y_start) * (crop_x_end - crop_x_start) 
+        croped = mask[crop_y_start:crop_y_end, crop_x_start:crop_x_end]
+        area = 0
+        for r in croped:
+            for c in r:
+                if c > 0:
+                    area += 1
 
-    cv.drawContours(opening, sorted_cnts, 0, (128, 128, 128), 3)
-    if (len(cnts) > 0):
-        for c in cnts:
-            curr = cv.contourArea(c)
-            max_area = max(max_area, curr)
-    if max_area > width*height*0.8:
-        print('maxarea', max_area)
-        print('HE/SHE DID IT!!!!! REPORT!!!')
-        return True
+        if area > 0.3*crop_size:
+            #cv.imwrite('./test_run/mask_' + str(f) + '.jpg', mask)
+            #cv.imwrite('./test_run/crop_' + str(f) + '.jpg', croped)
+            return True
+        else:
+            return False  
+    
     else:
-        print('maxarea', max_area)
-        print('No violation')
+        #print('contours not found')
         return False
     
     # #---- TEST CODE -------------
@@ -52,62 +54,60 @@ def detect_dump(curr, last):
     # cv.destroyAllWindows()
     # ################################
 
-def main(top_view, in_view, bucket):
+def main(view, bucket):
     
-    #format: top_STREETNAME_DATE for top camera
-    #format2: in_STREETNAME_DATE for inner camera
-
+    #format: STREETNAME_DATE for top camera
     # get information from the stream filename
-    items = top_view.split('_')
-    street_name = items[1]
-    date = items[2]
-
+    items = view.split('_')
+    street_name = items[0]
+    date = items[1].split('.')[0]
+    
+    print('street', street_name)
+    print('date', date)
     # get video files from the bucket
-    s3 = boto3.resource('s3')
-    s3.meta.client.download_file(bucket, top_view, '/temp/' + top_view)
-    s3.meta.client.download_file(bucket, top_view, '/temp/' + in_view)
+    s3 = boto3.client('s3')
+    f = '/tmp/' + str(view)
+    print(f)
+    
+    s3.download_file(Bucket=bucket, Key=view, Filename=f)
     times = 0
-    # street_name = cur_street
     frameFrequency = 10
     #####################################
 
-    camera_top_view = cv.VideoCapture('/temp/' + top_view)
-    camera_in_view = cv.VideoCapture('/temp/' + in_view)
-    res_top_view, frame_top_view = camera_top_view.read()
-    res_in_view, frame_in_view = camera_in_view.read()
+    camera = cv.VideoCapture(f)
+    res, frame = camera.read()
 
-    if not (res_in_view and res_top_view):
+    if not res:
         return 
-    last = frame_in_view
+    last = frame
+    last_face = frame
     pause = 0
     while True:
-        res_top_view, frame_top_view = camera_top_view.read()
-        res_in_view, frame_in_view = camera_in_view.read()
+        res, frame = camera.read()
         times += 1
-        if not (res_top_view and res_in_view):
+        if not res:
             # print('not res , not image')
             break   
         if times%frameFrequency == 0:
             if (pause > 0):
                 pause -= 1
             else:
-                if (detect_dump(frame_in_view, last)):
+                if (detect_dump(frame, last)):
                     obj_name = 'obj_' + str(uuid.uuid4()) + '.jpg'
                     p_name = 'person_' + str(uuid.uuid4()) + '.jpg'
-                    obj_path = "/temp/" +  obj_name
-                    p_path = "/temp/" + p_name
-                    cv.imwrite(obj_path, frame_in_view)
-                    cv.imwrite(p_path, frame_top_view)
+                    obj_path = "/tmp/" +  obj_name
+                    p_path = "/tmp/" + p_name
+                    cv.imwrite(p_path, last_face)
+                    cv.imwrite(obj_path, frame)
                     # upload files to bucket
-                    upload2S3(bucket, obj_name, obj_path)
-                    upload2S3(bucket, p_name, p_path)
+                    upload2S3('tyotimg1', obj_name, obj_path)
+                    upload2S3('tyotimg1', p_name, p_path)
                     # upload to DB
                     upload2DB('tyotdb', street_name, p_name, obj_name, date)
                     # skip 2 frames to avoid redundant searches
                     pause = 2
-    camera_top_view.release()
-    camera_in_view.release()
-
+            last_face = frame
+    camera.release()
 def upload2S3(bucket_name, file_name, file_path) :
     s3 = boto3.client('s3')
     s3.upload_file(file_path, bucket_name, file_name)
@@ -130,34 +130,33 @@ def find_item(name, obj_list):
             return True
     return False
 
-def lambda_hanlder(event, context):
+def lambda_handler(event, context):
     s3 = boto3.client('s3')
-    top_view = ''
-    in_view = ''
+    view = ''
 
     record = event['Records'][0]
-    bucket = record['bucket']['name']
+    bucket = record['s3']['bucket']['name']
     srckey = unquote_plus(record['s3']['object']['key'])
     
-    
-    l = s3.list_objects(Bucket=bucket)
-    # checking if this object is top view or in view
-    if srckey[0:3] == 'top':
-        top_view = srckey
-        to_find = 'in' + srckey[3:]
-        if (not find_item(to_find, l)):
-            print('not found:' + to_find)
-            return
-        else:
-            in_view = to_find
-    else:
-        in_view = srckey
-        to_find = 'top' + srckey[3:]
-        if (not find_item(to_find, l)):
-            print('not found:' + to_find)
-            return
-        else:
-            top_view = to_find
-
-    # guaranted that both video exsists in S3 bucket
-    main(top_view, in_view, bucket)
+    view = srckey
+    # l = s3.list_objects(Bucket=bucket)
+    # # checking if this object is top view or in view
+    # if srckey[0:3] == 'top':
+    #     top_view = srckey
+    #     to_find = 'in' + srckey[3:]
+    #     if (not find_item(to_find, l)):
+    #         print('not found:' + to_find)
+    #         return
+    #     else:
+    #         in_view = to_find
+    # else:
+    #     in_view = srckey
+    #     to_find = 'top' + srckey[3:]
+    #     if (not find_item(to_find, l)):
+    #         print('not found:' + to_find)
+    #         return
+    #     else:
+    #         top_view = to_find
+    print('view', view)
+    print('bucket', bucket)
+    main(view, bucket)

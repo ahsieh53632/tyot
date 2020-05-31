@@ -16,7 +16,7 @@ with open('C:/Users/alex5/Desktop/credentials.csv', 'r') as c:
 
 
 
-def detect_dump(curr, last):
+def detect_dump(curr, last, f, cnt_img):
     sub = cv.createBackgroundSubtractorMOG2()
     width = len(curr[0])
     height = len(curr)
@@ -27,24 +27,40 @@ def detect_dump(curr, last):
     thresh, bnw = cv.threshold(fgMask, 127, 255, cv.THRESH_BINARY)
     opening = cv.morphologyEx(bnw, cv.MORPH_OPEN, kernel)
     #closing = cv.morphologyEx(opening, cv.MORPH_CLOSE, np.ones((10,10), np.uint8))
+
     cnts = cv.findContours(opening, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE)[-2]
-    
     max_area = 0
     sorted_cnts = sorted(cnts, key=cv.contourArea, reverse=True)
+    cv.drawContours(cnt_img, sorted_cnts, 0, (0, 0, 255), 3)
+    # find area in dump area
+    if (len(sorted_cnts) > 0):
+        mask = np.zeros(opening.shape, np.uint8)
+        cv.drawContours(mask, [sorted_cnts[0]], 0, 255, -1) 
+        crop_x_start = 500
+        crop_x_end = 580
+        crop_y_start = 670
+        crop_y_end = 1300
+        crop_size = (crop_y_end - crop_y_start) * (crop_x_end - crop_x_start) 
+        croped = mask[crop_y_start:crop_y_end, crop_x_start:crop_x_end]
+        area = 0
+        for r in croped:
+            for c in r:
+                if c > 0:
+                    area += 1
 
-    cv.drawContours(opening, sorted_cnts, 0, (128, 128, 128), 3)
-    if (len(cnts) > 0):
-        for c in cnts:
-            curr = cv.contourArea(c)
-            max_area = max(max_area, curr)
-    if max_area > width*height*0.8:
-        #print('maxarea', max_area)
-        #print('HE/SHE DID IT!!!!! REPORT!!!')
-        return True
+        if area > 0.3*crop_size:
+            #cv.imwrite('./test_run/mask_' + str(f) + '.jpg', mask)
+            #cv.imwrite('./test_run/crop_' + str(f) + '.jpg', croped)
+            return True
+        else:
+            return False
+    
     else:
-        #print('maxarea', max_area)
-        #print('No violation')
+        #print('contours not found')
         return False
+
+
+
     
     # #---- TEST CODE -------------
     # cv.imshow('foreground', opening)
@@ -52,33 +68,36 @@ def detect_dump(curr, last):
     # cv.destroyAllWindows()
     # ################################
 
-def main(top_view, in_view):
-    #format: top_STREETNAME_DATE for top camera
-    #format2: in_STREETNAME_DATE for inner camera
+def main(view):
+    #format: STREETNAME_DATE for top camera
+    #format2: STREETNAME_DATE for inner camera
 
     # get information from the stream filename
-    items = top_view.split('_')
-    street_name = items[1]
-    date = items[2]
+    items = view.split('_')
+    street_name = items[0]
+    date = items[1]
 
     times = 0
     frameFrequency = 10
     #####################################
-    camera_top_view = cv.VideoCapture(top_view)
-    camera_in_view = cv.VideoCapture(in_view)
-    res_top_view, frame_top_view = camera_top_view.read()
-    res_in_view, frame_in_view = camera_in_view.read()
-
-    if not (res_in_view and res_top_view):
-        print('either one is missing one frame')
+    camera = cv.VideoCapture(view)
+    res, frame = camera.read()
+    if not res:
+        print('can not read frame')
         return 
-    last = frame_in_view
+    last = frame
+    last_face = frame
     pause = 0
+
+    # skip one frame
+    res, frame = camera.read()
+    if not res:
+        print('can not read frame')
+        return 
     while True:
-        res_top_view, frame_top_view = camera_top_view.read()
-        res_in_view, frame_in_view = camera_in_view.read()
+        res, frame = camera.read()
         times += 1
-        if not (res_top_view and res_in_view):
+        if not res:
             # print('not res , not image')
             break   
         if times%frameFrequency == 0:
@@ -86,22 +105,24 @@ def main(top_view, in_view):
             if (pause > 0):
                 pause -= 1
             else:
-                if (detect_dump(frame_in_view, last)):
+                cnt_img = frame.copy()
+                result = detect_dump(frame, last, times, cnt_img)
+                if (result):
                     print('######################################')
                     print(' found violation at frame' + str(times))
                     print('######################################')
-                    obj_name = 'obj_' + str(uuid.uuid4()) + '.jpg'
-                    p_name = 'person_' + str(uuid.uuid4()) + '.jpg'
-                    obj_path = "./test_run/" +  obj_name
+                    p_name = 'person_' + str(times) + '.jpg'
                     p_path = "./test_run/" + p_name
-                    cv.imwrite(obj_path, frame_in_view)
-                    cv.imwrite(p_path, frame_top_view)
+                    obj_name = 'obj_' + str(times) + '.jpg'
+                    obj_path = "./test_run/" + obj_name
+                    cv.imwrite(p_path, last_face)
+                    cv.imwrite(obj_path, cnt_img)
                     # skip 2 frames to avoid redundant searches
-                    pause = 2
-    camera_top_view.release()
-    camera_in_view.release()
-
+                    pause = 4
+        if times%(frameFrequency*1.5) == 0:
+            last_face = frame
+    camera.release()
 
 
 # guaranted that both video exsists in S3 bucket
-main('./test_footage/test_1.mp4', './test_footage/test_1.mp4')
+main('./test_footage/中央路_20200532.mp4')
