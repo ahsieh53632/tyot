@@ -82,6 +82,9 @@ def main(view, bucket):
     last = frame
     last_face = frame
     pause = 0
+
+    # skip one frame
+    res, frame = camera.read()
     while True:
         res, frame = camera.read()
         times += 1
@@ -105,7 +108,8 @@ def main(view, bucket):
                     # upload to DB
                     upload2DB('tyotdb', street_name, p_name, obj_name, date)
                     # skip 2 frames to avoid redundant searches
-                    pause = 2
+                    pause = 4
+        if times%(frameFrequency*1.5) == 0:
             last_face = frame
     camera.release()
 def upload2S3(bucket_name, file_name, file_path) :
