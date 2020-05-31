@@ -49,7 +49,7 @@ def detect_dump(curr, last, f, cnt_img):
                     area += 1
 
         if area > 0.3*crop_size:
-            #cv.imwrite('./test_run/mask_' + str(f) + '.jpg', mask)
+            cv.imwrite('./test_run/mask_' + str(f) + '.jpg', mask)
             #cv.imwrite('./test_run/crop_' + str(f) + '.jpg', croped)
             return True
         else:
