@@ -6,7 +6,7 @@ A project designed to prevent Taipei citizens from throwing household garbage in
 ## Built With
 AWS api gateway <br />
 AWS lambda <br />
-AQWS DynamoDB <br />
+AWS DynamoDB <br />
 Opencv Library <br />
 Aws S3 Bucket
 
