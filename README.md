@@ -1,4 +1,4 @@
-# TYOT: Throw Yoyr Own Trash!
+# TYOT: Throw Your Own Trash!
 
 ## Description
 A project designed to prevent Taipei citizens from throwing household garbage into public trash cans
