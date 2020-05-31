@@ -21,7 +21,7 @@ button click -> API CALL -> fetch images
 If you want to run this project locally, make sure you have opencv-python installed
 
 # How to use
-All you need to do is upload the video to the "tyotinput" bucket and our lambda function will handle the rest
+All you need to do is upload the video to the "tyotinput" bucket and our lambda function will handle the rest \n
 Note: tyotinput bucket is not public at this moment
 
 # Test it your self
