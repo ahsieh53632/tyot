@@ -4,10 +4,10 @@
 A project designed to prevent Taipei citizens from throwing household garbage into public trash cans
 
 ## Built With
-AWS api gateway
-AWS lambda
-AQWS DynamoDB
-Opencv Library
+AWS api gateway <br />
+AWS lambda <br />
+AQWS DynamoDB <br />
+Opencv Library <br />
 Aws S3 Bucket
 
 ## Design
