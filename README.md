@@ -26,9 +26,10 @@ Then you can fetch images from DynamoDB using our front end
 ### Note: tyotinput bucket is not public at this moment
 
 # Test it your self
-you can test the output of our test video with our front end:
-
-First you enter the desired address
-then you selected searching option: you can find all violations that occured at that street or find violations between a specific time frame. 
-Finally, click submit and you should get the image of the person, and what he/she threw, in a table format 
+you can see the output of our test videos with our front end:
+```
+Type 中央路 for the street name
+Currently we only have data for the dates 20200532 and 20200530 
+``` 
+then, click submit and you should get the image of the person, and what he/she threw, in a table format 
 https://ahsieh53632.github.io/tyotsite/
