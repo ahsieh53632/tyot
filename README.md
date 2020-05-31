@@ -8,7 +8,7 @@ AWS api gateway <br />
 AWS lambda <br />
 AWS DynamoDB <br />
 Opencv Library <br />
-Aws S3 Bucket
+AWS S3 Bucket
 
 ## Design
 Sicne we can not find avaliavle live stream cams  for our purpose, we use a S3 bucket and a trigger to simulate the process of a live stream.
