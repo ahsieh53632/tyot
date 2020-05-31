@@ -26,8 +26,8 @@ Then you can fetch images from DynamoDB using our front end
 ### Note: tyotinput bucket is not public at this moment
 
 # Test it your self
-https://ahsieh53632.github.io/tyotsite/
-you can see the output of our test videos with our front end:
+you can see the output of our test videos with our front end: https://ahsieh53632.github.io/tyotsite/
+our test-video link: https://drive.google.com/file/d/1zbplH_ehZaSC7dV1mxNm-LseNiswpQNK/view?usp=sharing
 ```
 Type 中央路 for the street name
 Currently we only have data for the dates 20200532 and 20200530 
