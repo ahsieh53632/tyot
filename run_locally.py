@@ -20,7 +20,7 @@ def detect_dump(curr, last, f, cnt_img):
     sub = cv.createBackgroundSubtractorMOG2()
     width = len(curr[0])
     height = len(curr)
-    fgMask = sub.apply(last)
+    fgMask = sub.apply(last, learningRate=1)
     fgMask = sub.apply(curr, learningRate=0)
     kernel = np.ones((8,8), np.uint8)
     #dilation = cv.dilate(fgMask, kernel, iterations=1)
@@ -45,10 +45,10 @@ def detect_dump(curr, last, f, cnt_img):
         area = 0
         for r in croped:
             for c in r:
-                if c > 0:
+                if c == 255:
                     area += 1
 
-        if area > 0.3*crop_size:
+        if area > 0.5*crop_size:
             cv.imwrite('./test_run/mask_' + str(f) + '.jpg', mask)
             cv.imwrite('./test_run/crop_' + str(f) + '.jpg', croped)
             return True
@@ -119,6 +119,7 @@ def main(view):
                     cv.imwrite(obj_path, cnt_img)
                     # skip 2 frames to avoid redundant searches
                     pause = 4
+            last = frame
         if times%(frameFrequency*1.5) == 0:
             last_face = frame
     camera.release()
