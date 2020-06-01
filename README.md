@@ -41,3 +41,4 @@ Currently we only have data for the date 20200532
 then, click submit and you should get images of individuals who dumped household garbage, and the objects that they threw 
 
 you can also test it with your own video files using run_locally.py
+##### Note: This wouldn't update results to DynamoDB and thus will not show in our front end, it will store results in the test_run folder
