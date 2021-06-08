@@ -2,7 +2,7 @@
 
 ## Description
 A project designed to prevent Taipei citizens from throwing household garbage into public trash cans
-
+https://www.youtube.com/watch?v=I9xrKLi1SSM
 ## Built With
 AWS api gateway <br />
 AWS lambda <br />
